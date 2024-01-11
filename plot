@@ -8,17 +8,20 @@ data <- data.frame(
     rep = integer(),
     interval = integer(),
     type = character(),
-    num_reqs = integer()
+    num_reqs = integer(),
+    time = integer()
 )
 
 for (interval in intervals) {
     for (type in c("scan", "update")) {
         num_reqs <- scan(paste0("trace_", type, "_", interval), what = integer(), quiet = TRUE)
+        times <- scan(paste0("runtime_", type, "_", interval), what = integer(), quiet = TRUE)
         data <- rbind(data, data.frame(
             rep = 1:length(num_reqs),
             interval = interval,
             type = type,
-            num_reqs = num_reqs
+            num_reqs = num_reqs,
+            times = times
         ))
     }
 }
@@ -34,10 +37,20 @@ data[["interval"]] <- factor(data[["interval"]], levels = intervals, labels = c(
 
 data[["type"]] <- factor(data[["type"]], levels = c("scan", "update"), labels = c("Table scan", "Insertion"))
 
-p <- ggplot(data, aes(x = rep, y = num_reqs)) +
+p1 <- ggplot(data, aes(x = rep, y = num_reqs)) +
     geom_line(aes(color = type)) +
     labs(title = "Iceberg: Effect of rewrite_position_delete_files", x = "Repetitions", y = "Number of S3 requests", color = "Type of operation") +
     theme(legend.position = "top") +
     facet_wrap(vars(interval), ncol = 2)
 
-ggsave("result.svg", plot = p, height = 10)
+ggsave("num_reqs.pdf", plot = p1, height = 10)
+ggsave("num_reqs.svg", plot = p1, height = 10)
+
+p2 <- ggplot(data, aes(x = rep, y = times)) +
+    geom_line(aes(color = type)) +
+    labs(title = "Iceberg: Effect of rewrite_position_delete_files", x = "Repetitions", y = "Times [ms]", color = "Type of operation") +
+    theme(legend.position = "top") +
+    facet_wrap(vars(interval), ncol = 2)
+
+ggsave("times.pdf", plot = p2, height = 10)
+ggsave("times.svg", plot = p2, height = 10)

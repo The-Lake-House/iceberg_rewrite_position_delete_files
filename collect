@@ -3,6 +3,12 @@
 set -eu
 
 for INTERVAL in off manifest_merge 1 10 25 50; do
+    # update trace
     wc -l --total=never trace_update_${INTERVAL}_* | awk '{print $1}' > "trace_update_${INTERVAL}"
+    # scan trace
     wc -l --total=never trace_scan_${INTERVAL}_* | awk '{print $1}' > "trace_scan_${INTERVAL}"
+    # update runtime
+    paste <(jq --slurp 'map(select(.Event == "org.apache.spark.sql.execution.ui.SparkListenerSQLExecutionStart" and .executionId == 0) | .time) | .[]' runtime_update/"$INTERVAL"/*) <(jq --slurp 'map(select(.Event == "org.apache.spark.sql.execution.ui.SparkListenerSQLExecutionEnd" and .executionId == 0) | .time) | .[]' runtime_update/"$INTERVAL"/*) | awk '{print $2 - $1}'# > "runtime_update_$INTERVAL"
+    # scan runtime
+    paste <(jq --slurp 'map(select(.Event == "org.apache.spark.sql.execution.ui.SparkListenerSQLExecutionStart" and .executionId == 0) | .time) | .[]' runtime_scan/"$INTERVAL"/*) <(jq --slurp 'map(select(.Event == "org.apache.spark.sql.execution.ui.SparkListenerSQLExecutionEnd" and .executionId == 0) | .time) | .[]' runtime_scan/"$INTERVAL"/*) | awk '{print $2 - $1}'# > "runtime_scan_$INTERVAL"
 done
