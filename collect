@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+set -eu
+
+for INTERVAL in off manifest_merge 1 10 25 50; do
+    wc -l --total=never trace_update_${INTERVAL}_* | awk '{print $1}' > "trace_update_${INTERVAL}"
+    wc -l --total=never trace_scan_${INTERVAL}_* | awk '{print $1}' > "trace_scan_${INTERVAL}"
+done
