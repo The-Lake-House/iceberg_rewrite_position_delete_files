@@ -39,7 +39,7 @@ data[["type"]] <- factor(data[["type"]], levels = c("scan", "update"), labels = 
 
 p1 <- ggplot(data, aes(x = rep, y = num_reqs)) +
     geom_line(aes(color = type)) +
-    labs(title = "Iceberg: Effect of rewrite_position_delete_files", x = "Repetitions", y = "Number of S3 requests", color = "Type of operation") +
+    labs(x = "Repetitions", y = "Number of S3 requests", color = "Type of operation") +
     theme(legend.position = "top") +
     facet_wrap(vars(interval), ncol = 2)
 
@@ -48,7 +48,7 @@ ggsave("num_reqs.svg", plot = p1, height = 10)
 
 p2 <- ggplot(data, aes(x = rep, y = times)) +
     geom_line(aes(color = type)) +
-    labs(title = "Iceberg: Effect of rewrite_position_delete_files", x = "Repetitions", y = "Times [ms]", color = "Type of operation") +
+    labs(x = "Repetitions", y = "Times [ms]", color = "Type of operation") +
     theme(legend.position = "top") +
     facet_wrap(vars(interval), ncol = 2)
 
