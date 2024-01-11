@@ -48,7 +48,7 @@ ggsave("num_reqs.svg", plot = p1, height = 10)
 
 p2 <- ggplot(data, aes(x = rep, y = times)) +
     geom_line(aes(color = type, linetype = type)) +
-    labs(x = "Repetitions", y = "Time [ms]", color = "Type of operation", linetype = "Type of operation") +
+    labs(x = "Repetitions", y = "Runtime [ms]", color = "Type of operation", linetype = "Type of operation") +
     theme(legend.position = "top") +
     facet_wrap(vars(interval), ncol = 2)
 
