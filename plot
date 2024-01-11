@@ -9,7 +9,7 @@ data <- data.frame(
     interval = integer(),
     type = character(),
     num_reqs = integer(),
-    time = integer()
+    times = integer()
 )
 
 for (interval in intervals) {
