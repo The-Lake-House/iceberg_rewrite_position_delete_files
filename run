@@ -15,14 +15,13 @@ BUCKET_NAME=iceberg-rewrite-position-delete-files
 
 SPARK_EXTRA_CONF="--conf spark.sql.catalog.spark_catalog.cache-enabled=false"
 
-mkdir -p runtime_{update,scan}
-
 mcli mb -p "minio/$BUCKET_NAME"
 spark-sql-hms-iceberg $SPARK_EXTRA_CONF -e "CREATE SCHEMA IF NOT EXISTS $SCHEMA_NAME LOCATION 's3a://$BUCKET_NAME/';" &> /dev/null
 spark-sql-hms-iceberg --database "$SCHEMA_NAME" -e "DROP TABLE IF EXISTS store;" &> /dev/null
 
 for INTERVAL in off manifest_merge 1 10 25 50; do
     echo "$INTERVAL"
+    mkdir -p "runtime_{update,scan}/$INTERVAL"
     if [[ "$INTERVAL" == 'manifest_merge' ]]; then
         TBLPROPERTIES="TBLPROPERTIES (write.delete.mode = 'merge-on-read', write.update.mode = 'merge-on-read', write.merge.mode = 'merge-on-read')"
     else
@@ -34,12 +33,12 @@ for INTERVAL in off manifest_merge 1 10 25 50; do
         # UPDATE OPERATION
         mcli admin trace minio > "trace_update_${INTERVAL}_${REP}" &
         PID=$!
-        spark-sql-hms-iceberg --conf spark.eventLog.enabled=true --conf spark.eventLog.dir="$PWD/runtime_update" -e "DELETE FROM $SCHEMA_NAME.store WHERE key = $((10#$REP));" &> /dev/null
+        spark-sql-hms-iceberg --conf spark.eventLog.enabled=true --conf spark.eventLog.dir="$PWD/runtime_update/$INTERVAL" -e "DELETE FROM $SCHEMA_NAME.store WHERE key = $((10#$REP));" &> /dev/null
         kill -SIGINT $PID
         # TABLE SCAN
         mcli admin trace minio > "trace_scan_${INTERVAL}_${REP}" &
         PID=$!
-        spark-sql-hms-iceberg --conf spark.eventLog.enabled=true --conf spark.eventLog.dir="$PWD/runtime_scan" -e "SELECT * FROM $SCHEMA_NAME.store;" &> /dev/null
+        spark-sql-hms-iceberg --conf spark.eventLog.enabled=true --conf spark.eventLog.dir="$PWD/runtime_scan/$INTERVAL" -e "SELECT * FROM $SCHEMA_NAME.store;" &> /dev/null
         kill -SIGINT $PID
         # PROCEDURE CALL
         if [[ "$INTERVAL" != 'off' ]] && [[ "$INTERVAL" != 'manifest_merge' ]]; then
