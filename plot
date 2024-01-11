@@ -35,7 +35,7 @@ data[["interval"]] <- factor(data[["interval"]], levels = intervals, labels = c(
     "With rewrite_delete_files after every 50 writes"
 ))
 
-data[["type"]] <- factor(data[["type"]], levels = c("scan", "update"), labels = c("Table scan", "Insertion"))
+data[["type"]] <- factor(data[["type"]], levels = c("scan", "update"), labels = c("Table scan", "Update"))
 
 p1 <- ggplot(data, aes(x = rep, y = num_reqs)) +
     geom_line(aes(color = type)) +
