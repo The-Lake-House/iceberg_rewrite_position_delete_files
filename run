@@ -33,12 +33,12 @@ for INTERVAL in off manifest_merge 1 10 25 50; do
         # UPDATE OPERATION
         mcli admin trace minio > "trace_update_${INTERVAL}_${REP}" &
         PID=$!
-        spark-sql-hms-iceberg --conf spark.eventLog.enabled=true --conf spark.eventLog.dir="$PWD/runtime_update/$INTERVAL" -e "DELETE FROM $SCHEMA_NAME.store WHERE key = $((10#$REP));" &> /dev/null
+        spark-sql-hms-iceberg --conf spark.eventLog.enabled=true --conf spark.eventLog.dir="$PWD/runtime_update/$INTERVAL" --database "$SCHEMA_NAME" -e "DELETE FROM store WHERE key = $((10#$REP));" &> /dev/null
         kill -SIGINT $PID
         # TABLE SCAN
         mcli admin trace minio > "trace_scan_${INTERVAL}_${REP}" &
         PID=$!
-        spark-sql-hms-iceberg --conf spark.eventLog.enabled=true --conf spark.eventLog.dir="$PWD/runtime_scan/$INTERVAL" -e "SELECT * FROM $SCHEMA_NAME.store;" &> /dev/null
+        spark-sql-hms-iceberg --conf spark.eventLog.enabled=true --conf spark.eventLog.dir="$PWD/runtime_scan/$INTERVAL" --database "$SCHEMA_NAME" -e "SELECT * FROM store;" &> /dev/null
         kill -SIGINT $PID
         # PROCEDURE CALL
         if [[ "$INTERVAL" != 'off' ]] && [[ "$INTERVAL" != 'manifest_merge' ]]; then
