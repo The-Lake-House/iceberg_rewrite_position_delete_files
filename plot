@@ -27,12 +27,12 @@ for (interval in intervals) {
 }
 
 data[["interval"]] <- factor(data[["interval"]], levels = intervals, labels = c(
-    "Without rewrite_delete_files",
+    "Without rewrite_position_delete_files",
     "With commit.manifest-merge.enabled",
-    "With rewrite_delete_files after each write",
-    "With rewrite_delete_files after every 10 writes",
-    "With rewrite_delete_files after every 25 writes",
-    "With rewrite_delete_files after every 50 writes"
+    "With rewrite_position_delete_files after each write",
+    "With rewrite_position_delete_files after every 10 writes",
+    "With rewrite_position_delete_files after every 25 writes",
+    "With rewrite_position_delete_files after every 50 writes"
 ))
 
 data[["type"]] <- factor(data[["type"]], levels = c("scan", "update"), labels = c("Table scan", "Update"))
